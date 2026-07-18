@@ -1,4 +1,8 @@
 name: SonarQube
+# Self-contained scan. lumibot is a PUBLIC repo, so it cannot call the PRIVATE
+# Apsion/apsion-github-org-workflows reusable workflow (GitHub blocks public ->
+# private workflow reuse). sonar.apsion.com is publicly reachable, so this runs
+# on a GitHub-hosted runner with repo-level SONAR_TOKEN / SONAR_HOST_URL secrets.
 on:
   push:
     branches: [dev, "version/**"]
@@ -6,14 +10,31 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   sonarqube:
-    uses: Apsion/apsion-github-org-workflows/.github/workflows/org-sonarqube.yml@main
-    with:
-      project_type: python
-      # Test suite needs broker/ThetaData credentials -> cannot run on CI.
-      # Static analysis only; no coverage upload.
-      run_tests: false
-    secrets: inherit
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Full history for accurate blame
+
+      # Static analysis only. run_tests is intentionally omitted: the suite needs
+      # broker/ThetaData credentials and cannot run on CI, so no coverage upload.
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        timeout-minutes: 30
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
