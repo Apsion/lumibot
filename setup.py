@@ -96,7 +96,7 @@ setuptools.setup(
         "holidays",
         "psutil",
         "openai",
-        "setuptools<81",
+        "setuptools<85",
         "google-adk[extensions]>=2.0.0,<3.0.0",
         "google-genai>=1.72.0,<2.0.0",
         "litellm>=1.83.7,<=1.83.14",
