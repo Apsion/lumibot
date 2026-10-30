@@ -99,7 +99,7 @@ setuptools.setup(
         "setuptools<85",
         "google-adk[extensions]>=2.0.0,<3.0.0",
         "google-genai>=1.72.0,<2.0.0",
-        "litellm>=1.106.5,<=1.106.5",
+        "litellm>=1.106.6,<=1.106.6",
         "anyio>=4.10.0",
         "mcp>=1.26.0",
         "schwab-py>=1.5.0",
